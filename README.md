@@ -11,7 +11,7 @@ macOS / Linux:
 ```bash
 git clone <your-repo-url>
 cd codex-pet-browser-preview
-./bin/codex-pet-preview --daemon --open
+PYTHONPATH=src python3 -m codex_pet_browser_preview --daemon --open
 ```
 
 Then open:
@@ -37,7 +37,7 @@ python -m codex_pet_browser_preview --daemon --open
 If the built-in pets are not found automatically, pass the Codex app archive:
 
 ```bash
-./bin/codex-pet-preview --asar /path/to/app.asar --daemon --open
+PYTHONPATH=src python3 -m codex_pet_browser_preview --asar /path/to/app.asar --daemon --open
 ```
 
 ## Useful Commands
@@ -45,19 +45,25 @@ If the built-in pets are not found automatically, pass the Codex app archive:
 List discovered pets:
 
 ```bash
-./bin/codex-pet-preview --scan
+PYTHONPATH=src python3 -m codex_pet_browser_preview --scan
 ```
 
 Use another port:
 
 ```bash
-./bin/codex-pet-preview --port 8766 --daemon --open
+PYTHONPATH=src python3 -m codex_pet_browser_preview --port 8766 --daemon --open
 ```
 
 Use another Codex home:
 
 ```bash
-./bin/codex-pet-preview --codex-home /path/to/.codex --daemon --open
+PYTHONPATH=src python3 -m codex_pet_browser_preview --codex-home /path/to/.codex --daemon --open
+```
+
+Optional shortcut on macOS / Linux:
+
+```bash
+./bin/codex-pet-preview --daemon --open
 ```
 
 ## Optional Install
@@ -91,4 +97,3 @@ After that, ask Codex:
 ```bash
 python3 scripts/self_check.py
 ```
-
