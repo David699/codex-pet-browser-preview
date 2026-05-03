@@ -107,11 +107,37 @@ const FRAME_W=192, FRAME_H=208, WIDTH=1536, HEIGHT=1872;
 let pets=[], selected=null, stateIndex=0, frame=0, playing=true, speed=1, zoom=2, timer=null;
 const $=id=>document.getElementById(id);
 async function loadPets(){
-  const res=await fetch('/api/pets');
-  const data=await res.json();
-  pets=data.pets;
-  renderPetList();
-  if(!selected && pets.length) selectPet(pets[0].id);
+  $('empty').textContent='Loading pets...';
+  $('empty').hidden=false;
+  $('content').hidden=true;
+  try {
+    const res=await fetch('/api/pets');
+    if(!res.ok){
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data=await res.json();
+    pets=data.pets || [];
+    renderPetList();
+    if(!selected && pets.length) selectPet(pets[0].id);
+    $('empty').hidden=true;
+    if(!pets.length) {
+      $('empty').textContent='No pets found.';
+      $('empty').hidden=false;
+    }
+  } catch (e) {
+    pets=[];
+    renderPetList();
+    selected=null;
+    $('sprite').removeAttribute('src');
+    $('sheet').removeAttribute('src');
+    $('sourcePath').textContent='';
+    $('meta').textContent='';
+    $('frameStrip').innerHTML='';
+    $('stateTabs').innerHTML='';
+    $('empty').textContent='Cannot load pets. Please open this page via the local server: http://127.0.0.1:8765/';
+    $('empty').hidden=false;
+    $('content').hidden=true;
+  }
 }
 function filteredPets(){
   const src=$('source').value, q=$('search').value.toLowerCase();
@@ -145,6 +171,18 @@ function renderTabs(){
     $('stateTabs').appendChild(b);
   });
 }
+function displayPath(path){
+  if(!path) return '';
+  if(path.startsWith('/Users/')){
+    const i=path.indexOf('/', 7);
+    if(i > 7) return `~/${path.slice(i + 1)}`;
+  }
+  if(path.startsWith('/home/')){
+    const i=path.indexOf('/', 6);
+    if(i > 6) return `~/${path.slice(i + 1)}`;
+  }
+  return path;
+}
 function renderFrameStrip(){
   $('frameStrip').innerHTML='';
   const s=selected.states[stateIndex];
@@ -166,7 +204,7 @@ function updateFrame(){
   $('sprite').style.left=`${-frame*FRAME_W*zoom}px`;
   $('sprite').style.top=`${-s.row*FRAME_H*zoom}px`;
   $('previewTitle').textContent=`${selected.name} · ${s.name}`;
-  $('sourcePath').textContent=selected.path;
+  $('sourcePath').textContent=displayPath(selected.path);
   $('meta').textContent=`row ${s.row}, col ${frame}, frame ${FRAME_W}x${FRAME_H}, sheet ${WIDTH}x${HEIGHT}, ${selected.path}`;
   $('play').textContent=playing?'Pause':'Play';
   renderFrameStrip();
