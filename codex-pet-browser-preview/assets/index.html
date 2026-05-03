@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codex Pet Preview</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f7f9;--panel:#ffffff;--ink:#111827;--muted:#6b7280;--line:#d9dee7;--accent:#2563eb;--soft:#eef2ff}
+@media (prefers-color-scheme: dark){:root{--bg:#111318;--panel:#181b22;--ink:#f5f7fb;--muted:#a6adbb;--line:#303642;--accent:#60a5fa;--soft:#1f2937}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,select,input{font:inherit}
+.app{min-height:100vh;display:grid;grid-template-columns:300px minmax(0,1fr);gap:0}
+.side{border-right:1px solid var(--line);background:var(--panel);padding:14px;overflow:auto}
+.main{padding:16px;overflow:auto}
+.title{font-weight:700;font-size:16px;margin:0 0 12px}
+.muted{color:var(--muted)}
+.field{display:grid;gap:6px;margin:0 0 12px}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+select,input[type=range]{width:100%}
+.pet-list{display:grid;gap:8px;margin-top:12px}
+.pet{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:10px;text-align:left;cursor:pointer}
+.pet:hover,.pet.active{border-color:var(--accent);background:var(--soft)}
+.pet strong{display:block;font-size:13px}
+.pet span{display:block;font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.toolbar,.state-tabs,.frame-strip{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toolbar{margin-bottom:12px}
+.state-tabs{margin-bottom:14px}
+.state-tabs button,.toolbar button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:7px;padding:7px 10px;cursor:pointer}
+.state-tabs button.active,.toolbar button.active{border-color:var(--accent);background:var(--soft)}
+.source-file{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin:0 0 12px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.source-file span{font-size:12px;font-weight:700;color:var(--muted)}
+.source-file code{display:block;overflow:auto;white-space:nowrap;font-size:12px;color:var(--ink)}
+.source-file button{border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:7px;padding:6px 9px;cursor:pointer}
+.stage-wrap{display:grid;grid-template-columns:minmax(260px,520px) minmax(360px,1fr);gap:16px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+.panel h2{font-size:13px;margin:0 0 10px;color:var(--muted);font-weight:700}
+.viewport{position:relative;overflow:hidden;width:calc(192px * var(--zoom));height:calc(208px * var(--zoom));border:1px solid var(--line);border-radius:8px;background-color:#fff}
+.checker{background-image:linear-gradient(45deg,#e8e8e8 25%,transparent 25%),linear-gradient(-45deg,#e8e8e8 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e8e8e8 75%),linear-gradient(-45deg,transparent 75%,#e8e8e8 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.sprite{position:absolute;width:calc(1536px * var(--zoom));height:calc(1872px * var(--zoom));max-width:none;image-rendering:auto}
+.outline{position:absolute;inset:0;border:2px solid rgba(37,99,235,.8);pointer-events:none}
+.meta{margin-top:10px;color:var(--muted);font-size:12px}
+.frame-strip{margin-top:12px}
+.thumb{position:relative;width:96px;height:104px;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer}
+.thumb.active{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 20%,transparent)}
+.thumb img{position:absolute;width:768px;height:936px;max-width:none}
+.sheet{position:relative;overflow:auto;max-height:72vh;border:1px solid var(--line);border-radius:8px;background:#fff}
+.sheet-inner{position:relative;width:768px;height:936px}
+.sheet img{display:block;width:768px;height:936px;max-width:none}
+.grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(to right,rgba(255,0,0,.65) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,0,0,.65) 1px,transparent 1px);background-size:96px 104px}
+.empty{border:1px dashed var(--line);border-radius:8px;padding:18px;color:var(--muted);background:var(--panel)}
+@media (max-width:900px){.app{grid-template-columns:1fr}.side{border-right:0;border-bottom:1px solid var(--line)}.stage-wrap{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1 class="title">Codex Pet Preview</h1>
+    <div class="field"><label>Source</label><select id="source"><option value="all">All</option><option value="builtin">Built-in</option><option value="custom">Custom</option></select></div>
+    <div class="field"><label>Search</label><input id="search" placeholder="pet name or id"></div>
+    <div class="toolbar"><button id="reload">Reload</button></div>
+    <div id="petList" class="pet-list"></div>
+  </aside>
+  <main class="main">
+    <div id="empty" class="empty">No pet selected.</div>
+    <div id="content" hidden>
+      <div class="toolbar">
+        <button id="play">Pause</button>
+        <button id="prev">Prev</button>
+        <button id="next">Next</button>
+        <button id="checker" class="active">Checker</button>
+        <button id="outline" class="active">Outline</button>
+        <label class="muted">Speed <input id="speed" type="range" min="0.25" max="3" step="0.25" value="1"></label>
+        <label class="muted">Zoom <input id="zoom" type="range" min="1" max="4" step="0.25" value="2"></label>
+      </div>
+      <div class="source-file">
+        <span>Source file</span>
+        <code id="sourcePath"></code>
+        <button id="copyPath">Copy</button>
+      </div>
+      <div id="stateTabs" class="state-tabs"></div>
+      <div class="stage-wrap">
+        <section class="panel">
+          <h2 id="previewTitle">Frame</h2>
+          <div id="viewport" class="viewport checker" style="--zoom:2">
+            <img id="sprite" class="sprite" alt="">
+            <div id="outlineBox" class="outline"></div>
+          </div>
+          <div id="meta" class="meta"></div>
+          <div id="frameStrip" class="frame-strip"></div>
+        </section>
+        <section class="panel">
+          <h2>Full Sheet</h2>
+          <div class="sheet checker">
+            <div class="sheet-inner">
+              <img id="sheet" alt="">
+              <div class="grid"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+const FRAME_W=192, FRAME_H=208, WIDTH=1536, HEIGHT=1872;
+let pets=[], selected=null, stateIndex=0, frame=0, playing=true, speed=1, zoom=2, timer=null;
+const $=id=>document.getElementById(id);
+async function loadPets(){
+  const res=await fetch('/api/pets');
+  const data=await res.json();
+  pets=data.pets;
+  renderPetList();
+  if(!selected && pets.length) selectPet(pets[0].id);
+}
+function filteredPets(){
+  const src=$('source').value, q=$('search').value.toLowerCase();
+  return pets.filter(p=>(src==='all'||p.source===src) && (p.name+p.id+p.path).toLowerCase().includes(q));
+}
+function renderPetList(){
+  $('petList').innerHTML='';
+  for(const pet of filteredPets()){
+    const b=document.createElement('button');
+    b.className='pet'+(selected&&selected.id===pet.id?' active':'');
+    b.innerHTML=`<strong>${pet.name}</strong><span>${pet.source} · ${pet.id}</span>`;
+    b.onclick=()=>selectPet(pet.id);
+    $('petList').appendChild(b);
+  }
+}
+function selectPet(id){
+  selected=pets.find(p=>p.id===id);
+  if(!selected) return;
+  stateIndex=0; frame=0; playing=true;
+  $('empty').hidden=true; $('content').hidden=false;
+  $('sprite').src=selected.image_url; $('sheet').src=selected.image_url;
+  renderTabs(); renderPetList(); renderFrameStrip(); updateFrame(); schedule();
+}
+function renderTabs(){
+  $('stateTabs').innerHTML='';
+  selected.states.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.textContent=`${s.name} (${s.frames})`;
+    b.className=i===stateIndex?'active':'';
+    b.onclick=()=>{stateIndex=i; frame=0; renderTabs(); renderFrameStrip(); updateFrame(); schedule();};
+    $('stateTabs').appendChild(b);
+  });
+}
+function renderFrameStrip(){
+  $('frameStrip').innerHTML='';
+  const s=selected.states[stateIndex];
+  for(let i=0;i<s.frames;i++){
+    const t=document.createElement('button');
+    t.className='thumb'+(i===frame?' active':'');
+    const img=document.createElement('img');
+    img.src=selected.image_url;
+    img.style.left=`${-i*96}px`;
+    img.style.top=`${-s.row*104}px`;
+    t.appendChild(img);
+    t.onclick=()=>{frame=i; updateFrame(); schedule();};
+    $('frameStrip').appendChild(t);
+  }
+}
+function updateFrame(){
+  const s=selected.states[stateIndex];
+  $('viewport').style.setProperty('--zoom', zoom);
+  $('sprite').style.left=`${-frame*FRAME_W*zoom}px`;
+  $('sprite').style.top=`${-s.row*FRAME_H*zoom}px`;
+  $('previewTitle').textContent=`${selected.name} · ${s.name}`;
+  $('sourcePath').textContent=selected.path;
+  $('meta').textContent=`row ${s.row}, col ${frame}, frame ${FRAME_W}x${FRAME_H}, sheet ${WIDTH}x${HEIGHT}, ${selected.path}`;
+  $('play').textContent=playing?'Pause':'Play';
+  renderFrameStrip();
+}
+function currentDelay(){
+  const s=selected.states[stateIndex];
+  return Math.max(30, (s.timings[frame] || 140) / speed);
+}
+function schedule(){
+  if(timer) clearTimeout(timer);
+  if(!playing || !selected) return;
+  timer=setTimeout(()=>{const s=selected.states[stateIndex]; frame=(frame+1)%s.frames; updateFrame(); schedule();}, currentDelay());
+}
+$('source').onchange=renderPetList;
+$('search').oninput=renderPetList;
+$('reload').onclick=async()=>{selected=null; await loadPets();};
+$('play').onclick=()=>{playing=!playing; updateFrame(); schedule();};
+$('prev').onclick=()=>{const s=selected.states[stateIndex]; frame=(frame+s.frames-1)%s.frames; updateFrame(); schedule();};
+$('next').onclick=()=>{const s=selected.states[stateIndex]; frame=(frame+1)%s.frames; updateFrame(); schedule();};
+$('checker').onclick=()=>{$('viewport').classList.toggle('checker'); document.querySelector('.sheet').classList.toggle('checker'); $('checker').classList.toggle('active');};
+$('outline').onclick=()=>{$('outlineBox').hidden=!$('outlineBox').hidden; $('outline').classList.toggle('active');};
+$('copyPath').onclick=async()=>{
+  if(!selected) return;
+  try{await navigator.clipboard.writeText(selected.path); $('copyPath').textContent='Copied'; setTimeout(()=>$('copyPath').textContent='Copy',900);}
+  catch{window.prompt('Source file', selected.path);}
+};
+$('speed').oninput=e=>{speed=Number(e.target.value); schedule();};
+$('zoom').oninput=e=>{zoom=Number(e.target.value); updateFrame();};
+loadPets();
+</script>
+</body>
+</html>

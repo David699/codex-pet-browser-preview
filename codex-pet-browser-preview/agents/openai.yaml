@@ -1,0 +1,8 @@
+interface:
+  display_name: "Codex Pet Browser Preview"
+  short_description: "Preview Codex pet actions in a browser"
+  brand_color: "#2563EB"
+  default_prompt: "Use $codex-pet-browser-preview to open a browser preview for my Codex pets."
+policy:
+  allow_implicit_invocation: true
+
