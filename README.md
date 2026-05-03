@@ -1,8 +1,10 @@
 # Codex Pet Browser Preview
 
-Browser preview skill for Codex Desktop pets.
+Local browser preview tool for Codex Desktop pet spritesheets.
 
-It scans Codex's built-in pet spritesheets from `app.asar`, scans custom pets from `~/.codex/pets`, and opens a local browser UI for inspecting every fixed Codex pet action row frame by frame.
+It scans Codex's built-in pet spritesheets from `app.asar`, scans custom pets from `~/.codex/pets`, and opens a browser UI for inspecting every fixed Codex pet action row frame by frame.
+
+The repository also includes a thin optional Codex skill wrapper that tells Codex how to start the CLI.
 
 ## Features
 
@@ -10,29 +12,43 @@ It scans Codex's built-in pet spritesheets from `app.asar`, scans custom pets fr
 - Switch between `idle`, `running-right`, `running-left`, `waving`, `jumping`, `failed`, `waiting`, `running`, and `review`.
 - Play, pause, step previous/next frame, adjust speed, and zoom.
 - Show checkerboard transparency, frame outline, contact strip, full sheet grid, and source file path.
+- Run as a normal Python CLI without installing a Codex skill.
 - No third-party Python dependencies.
 
-## Install
+## Install CLI
 
-Copy the skill folder into your Codex skills directory:
+With `pipx`:
 
 ```bash
-mkdir -p ~/.codex/skills
-cp -R codex-pet-browser-preview ~/.codex/skills/codex-pet-browser-preview
+pipx install .
 ```
 
-## Usage
+From GitHub after publishing:
+
+```bash
+pipx install git+https://github.com/<your-name>/codex-pet-browser-preview.git
+```
+
+For local development without `pipx`, use a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e .
+```
+
+## Use CLI
 
 Scan available pets:
 
 ```bash
-python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --scan
+codex-pet-preview --scan
 ```
 
-Start the browser preview:
+Start the browser preview as a background server:
 
 ```bash
-python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --port 8765 --daemon --open
+codex-pet-preview --port 8765 --daemon --open
 ```
 
 Then open:
@@ -41,16 +57,22 @@ Then open:
 http://127.0.0.1:8765/
 ```
 
+You can also run without installing, from a checkout:
+
+```bash
+PYTHONPATH=src python3 -m codex_pet_browser_preview --port 8765 --daemon --open
+```
+
 If Codex is installed outside the default path, pass the app archive explicitly:
 
 ```bash
-python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --asar /path/to/app.asar --open
+codex-pet-preview --asar /path/to/app.asar --open
 ```
 
 If you want to inspect a different Codex home:
 
 ```bash
-python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --codex-home /path/to/.codex --open
+codex-pet-preview --codex-home /path/to/.codex --open
 ```
 
 The background server writes runtime files under:
@@ -58,6 +80,21 @@ The background server writes runtime files under:
 ```text
 ~/.codex/cache/pet-browser-preview/server.pid
 ~/.codex/cache/pet-browser-preview/server.log
+```
+
+## Optional Codex Skill Wrapper
+
+The `codex-pet-browser-preview/` folder is a thin Codex skill wrapper. It does not contain the preview implementation. Install the CLI first, then copy the skill wrapper if you want Codex to launch it for you:
+
+```bash
+mkdir -p ~/.codex/skills
+cp -R codex-pet-browser-preview ~/.codex/skills/codex-pet-browser-preview
+```
+
+After that, ask Codex to start the pet browser preview. The skill will run:
+
+```bash
+codex-pet-preview --port 8765 --daemon --open
 ```
 
 ## Pet Sources
@@ -90,7 +127,7 @@ Run local checks:
 python3 scripts/self_check.py
 ```
 
-Validate the skill with Codex's skill creator helper if available:
+Validate the skill wrapper with Codex's skill creator helper if available:
 
 ```bash
 python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py codex-pet-browser-preview
@@ -99,14 +136,16 @@ python3 ~/.codex/skills/.system/skill-creator/scripts/quick_validate.py codex-pe
 ## Repository Layout
 
 ```text
+src/codex_pet_browser_preview/
+  __main__.py
+  cli.py
+  asar_extract.py
+  pet_catalog.py
+  pet_constants.py
+  preview_server.py
+  assets/index.html
 codex-pet-browser-preview/
   SKILL.md
   agents/openai.yaml
-  assets/index.html
-  scripts/
-    asar_extract.py
-    pet_catalog.py
-    pet_constants.py
-    preview_server.py
-    serve_pet_preview.py
+scripts/self_check.py
 ```

@@ -10,8 +10,8 @@ import sys
 import webbrowser
 from pathlib import Path
 
-from pet_catalog import build_catalog
-from preview_server import find_free_port, make_server
+from .pet_catalog import build_catalog
+from .preview_server import find_free_port, make_server
 
 
 def is_port_listening(host: str, port: int) -> bool:
@@ -39,7 +39,8 @@ def start_daemon(args: argparse.Namespace, codex_home: Path) -> None:
 
     cmd = [
         sys.executable,
-        str(Path(__file__).resolve()),
+        "-m",
+        "codex_pet_browser_preview",
         "--host",
         args.host,
         "--port",

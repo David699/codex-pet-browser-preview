@@ -7,7 +7,7 @@ import os
 import sys
 from pathlib import Path
 
-from pet_constants import BUILTIN_INTERNAL
+from .pet_constants import BUILTIN_INTERNAL
 
 
 def default_asar_candidates() -> list[Path]:
@@ -93,4 +93,3 @@ def extract_builtins(codex_home: Path, asar_arg: Path | None) -> list[dict]:
             }
         )
     return pets
-

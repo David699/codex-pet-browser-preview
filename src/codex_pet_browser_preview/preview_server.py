@@ -7,14 +7,16 @@ import mimetypes
 import socket
 import sys
 import threading
+from importlib import resources
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-from pet_catalog import build_catalog
+from .pet_catalog import build_catalog
 
 
-HTML_PATH = Path(__file__).resolve().parents[1] / "assets" / "index.html"
+def read_index_html() -> bytes:
+    return resources.files("codex_pet_browser_preview").joinpath("assets/index.html").read_bytes()
 
 
 def find_free_port(host: str) -> int:
@@ -67,7 +69,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/":
-            self.send_bytes(200, HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+            self.send_bytes(200, read_index_html(), "text/html; charset=utf-8")
             return
         if parsed.path == "/api/pets":
             with self.server.lock:
@@ -114,4 +116,3 @@ class Handler(BaseHTTPRequestHandler):
 
 def make_server(host: str, port: int, codex_home: Path, asar_arg: Path | None) -> PreviewServer:
     return PreviewServer((host, port), Handler, codex_home, asar_arg)
-

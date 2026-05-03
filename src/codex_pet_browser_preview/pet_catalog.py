@@ -6,8 +6,8 @@ import base64
 import json
 from pathlib import Path
 
-from asar_extract import extract_builtins
-from pet_constants import COLS, FRAME_H, FRAME_W, HEIGHT, ROWS, STATES, WIDTH
+from .asar_extract import extract_builtins
+from .pet_constants import COLS, FRAME_H, FRAME_W, HEIGHT, ROWS, STATES, WIDTH
 
 
 def discover_custom(codex_home: Path) -> list[dict]:
@@ -59,4 +59,3 @@ def build_catalog(codex_home: Path, asar_arg: Path | None) -> tuple[list[dict], 
         enriched["sheet"] = sheet
         pets.append(enriched)
     return pets, assets
-
