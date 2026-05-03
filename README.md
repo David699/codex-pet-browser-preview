@@ -6,7 +6,15 @@ It shows Codex built-in pets and custom pets from `~/.codex/pets`, with playback
 
 ## Quick Start
 
-macOS / Linux:
+### Compatibility
+
+- ✅ macOS: Tested and confirmed working.
+- ⚪️ Linux / Windows: Expected to work on capable environments with Python and filesystem access; not fully tested yet. Commands are provided as best-effort guidance.
+
+### macOS / Linux
+
+
+Mac / Linux:
 
 ```bash
 git clone <your-repo-url>
@@ -28,6 +36,8 @@ cd codex-pet-browser-preview
 $env:PYTHONPATH="src"
 python -m codex_pet_browser_preview --daemon --open
 ```
+
+For Linux and Windows, if you encounter startup or path-related issues, please open an issue with platform details and traceback.
 
 ## What It Finds
 
