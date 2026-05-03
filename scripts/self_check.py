@@ -23,7 +23,6 @@ def main() -> None:
         REPO_ROOT / "LICENSE",
         REPO_ROOT / "pyproject.toml",
         REPO_ROOT / "requirements.txt",
-        REPO_ROOT / "bin" / "codex-pet-preview",
         SKILL_ROOT / "SKILL.md",
         SKILL_ROOT / "agents" / "openai.yaml",
         PACKAGE_ROOT / "__init__.py",

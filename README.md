@@ -60,12 +60,6 @@ Use another Codex home:
 PYTHONPATH=src python3 -m codex_pet_browser_preview --codex-home /path/to/.codex --daemon --open
 ```
 
-Optional shortcut on macOS / Linux:
-
-```bash
-./bin/codex-pet-preview --daemon --open
-```
-
 ## Optional Install
 
 For a permanent `codex-pet-preview` command:
