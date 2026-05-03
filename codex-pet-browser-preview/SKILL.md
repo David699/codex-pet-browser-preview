@@ -18,7 +18,7 @@ codex-pet-preview --port 8765 --daemon --open
 2. If the CLI is unavailable but the repository checkout is available, run from the checkout root:
 
 ```bash
-PYTHONPATH=src python3 -m codex_pet_browser_preview --port 8765 --daemon --open
+./bin/codex-pet-preview --port 8765 --daemon --open
 ```
 
 3. Use `--scan` when you only need to verify discovered pets:

@@ -60,6 +60,12 @@ http://127.0.0.1:8765/
 You can also run without installing, from a checkout:
 
 ```bash
+./bin/codex-pet-preview --port 8765 --daemon --open
+```
+
+The equivalent module command is:
+
+```bash
 PYTHONPATH=src python3 -m codex_pet_browser_preview --port 8765 --daemon --open
 ```
 
@@ -95,6 +101,12 @@ After that, ask Codex to start the pet browser preview. The skill will run:
 
 ```bash
 codex-pet-preview --port 8765 --daemon --open
+```
+
+If the CLI is not installed but this repository checkout is available, Codex can run:
+
+```bash
+./bin/codex-pet-preview --port 8765 --daemon --open
 ```
 
 ## Pet Sources
@@ -147,5 +159,6 @@ src/codex_pet_browser_preview/
 codex-pet-browser-preview/
   SKILL.md
   agents/openai.yaml
+bin/codex-pet-preview
 scripts/self_check.py
 ```
