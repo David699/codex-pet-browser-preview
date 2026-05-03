@@ -32,7 +32,7 @@ python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py -
 Start the browser preview:
 
 ```bash
-python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --port 8765 --open
+python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --port 8765 --daemon --open
 ```
 
 Then open:
@@ -51,6 +51,13 @@ If you want to inspect a different Codex home:
 
 ```bash
 python3 ~/.codex/skills/codex-pet-browser-preview/scripts/serve_pet_preview.py --codex-home /path/to/.codex --open
+```
+
+The background server writes runtime files under:
+
+```text
+~/.codex/cache/pet-browser-preview/server.pid
+~/.codex/cache/pet-browser-preview/server.log
 ```
 
 ## Pet Sources
@@ -103,4 +110,3 @@ codex-pet-browser-preview/
     preview_server.py
     serve_pet_preview.py
 ```
-

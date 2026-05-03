@@ -11,14 +11,15 @@ Use this skill to inspect Codex Desktop pet spritesheets in a browser UI.
 
 1. Run `scripts/serve_pet_preview.py` from this skill.
 2. Use `--scan` first when you only need to verify discovered pets.
-3. Start the server for interactive preview:
+3. For user-facing preview requests, start or reuse the background server and open the browser:
 
 ```bash
-python3 scripts/serve_pet_preview.py --port 8765 --open
+python3 scripts/serve_pet_preview.py --port 8765 --daemon --open
 ```
 
 4. If Codex is installed outside the default macOS path, pass `--asar /path/to/app.asar`.
 5. If the user asks to inspect a specific custom Codex home, pass `--codex-home /path/to/.codex`.
+6. After starting, give the user `http://127.0.0.1:8765/` and mention that the server log is under `${CODEX_HOME:-~/.codex}/cache/pet-browser-preview/server.log`.
 
 ## What The Preview Shows
 
@@ -41,5 +42,5 @@ python3 scripts/serve_pet_preview.py --port 8765 --open
 - The preview mirrors Codex's fixed atlas layout: `1536x1872`, `8` columns by `9` rows, `192x208` per frame.
 - It does not modify pet files.
 - Built-in WebP files are cached under `${CODEX_HOME:-~/.codex}/cache/pet-browser-preview/builtin`.
+- Background server pid/log files are written under `${CODEX_HOME:-~/.codex}/cache/pet-browser-preview`.
 - If a custom pet was just overwritten, refresh the browser page or use the page's reload button.
-
